@@ -1,0 +1,59 @@
+global:
+  nodeSelector:
+    kubernetes.io/hostname: {{.Node.Name}}
+
+configs:
+  cm:
+    create: true
+    annotations: {}
+    url: ''
+
+    application.instanceLabelKey: argocd.argoproj.io/instance
+    server.rbac.log.enforce.enable: false
+    exec.enabled: true
+    admin.enabled: false
+    timeout.reconciliation: 180s
+    timeout.hard.reconciliation: 0s
+
+    accounts.roflex: apiKey, login
+    accounts.sneakerbot: apiKey, login
+    accounts.sneakercloud: apiKey, login
+  params:
+    server.insecure: true
+  rbac:
+    policy.csv: |
+      p, role:org-admin, applications, *, */*, allow
+      p, role:org-admin, clusters, get, *, allow
+      p, role:org-admin, repositories, get, *, allow
+      p, role:org-admin, repositories, create, *, allow
+      p, role:org-admin, repositories, update, *, allow
+      p, role:org-admin, repositories, delete, *, allow
+      p, role:org-admin, projects, get, *, allow
+      p, role:org-admin, projects, create, *, allow
+      p, role:org-admin, projects, update, *, allow
+      p, role:org-admin, projects, delete, *, allow
+      p, role:org-admin, logs, get, *, allow
+      p, role:org-admin, exec, create, */*, allow
+
+      p, role:sneakercloud-admin, applications, create, sneakercloud/*, allow
+      p, role:sneakercloud-admin, applications, delete, sneakercloud/*, allow
+      p, role:sneakercloud-admin, applications, get, sneakercloud/*, allow
+      p, role:sneakercloud-admin, applications, override, sneakercloud/*, allow
+      p, role:sneakercloud-admin, applications, sync, sneakercloud/*, allow
+      p, role:sneakercloud-admin, applications, update, sneakercloud/*, allow
+      p, role:sneakercloud-admin, logs, get, sneakercloud/*, allow
+      p, role:sneakercloud-admin, exec, create, sneakercloud/*, allow
+      p, role:sneakercloud-admin, projects, get, sneakercloud, allow
+
+      g, roflex, role:org-admin
+      g, sneakerbot, role:sneakercloud-admin
+      g, sneakercloud, role:sneakercloud-admin
+  secret:
+    argocdServerAdminPassword: '$2a$10$lBWi2EEzRDfetMWDzYP2KOKpgQ.QmpbrgVVBWalwr1u6n0h2LZD1q'
+
+server:
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - argocd.rofleksey.ru

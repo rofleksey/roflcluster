@@ -1,0 +1,23 @@
+ingress:
+  enabled: true
+  className: traefik
+  hosts:
+    - dashboard.{{.Node.Domain}}
+protocolHttp: true
+service:
+  externalPort: 9090
+rbac:
+    clusterReadOnlyRole: false
+app:
+  scheduling:
+    nodeSelector:
+      kubernetes.io/hostname: {{.Node.Name}}
+api:
+  nodeSelector:
+    kubernetes.io/hostname: {{.Node.Name}}
+web:
+  nodeSelector:
+    kubernetes.io/hostname: {{.Node.Name}}
+extraArgs:
+  - --enable-insecure-login
+  - --insecure-bind-address=0.0.0.0

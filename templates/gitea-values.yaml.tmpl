@@ -1,0 +1,47 @@
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: traefik
+  hosts:
+    - host: git.{{.Node.Domain}}
+      paths:
+        - path: /
+          pathType: Prefix
+
+nodeSelector:
+  kubernetes.io/hostname: {{.Node.Name}}
+
+persistence:
+  enabled: true
+  size: 20Gi
+
+postgresql:
+  enabled: true
+  primary:
+    nodeSelector:
+      kubernetes.io/hostname: {{.Node.Name}}
+    persistence:
+      enabled: true
+redis-cluster:
+  enabled: false
+postgresql-ha:
+  enabled: false
+
+gitea:
+  admin:
+    username: {{.User.Username}}
+    password: {{.User.Password}}
+    email: {{.User.Email}}
+  config:
+    database:
+      DB_TYPE: postgres
+    session:
+      PROVIDER: db
+    cache:
+      ADAPTER: memory
+    queue:
+      TYPE: level
+    indexer:
+      ISSUE_INDEXER_TYPE: bleve
+      REPO_INDEXER_ENABLED: true
+
