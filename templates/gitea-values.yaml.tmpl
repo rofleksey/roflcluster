@@ -27,12 +27,17 @@ redis-cluster:
 postgresql-ha:
   enabled: false
 
+strategy:
+  type: Recreate
+
 gitea:
   admin:
     username: {{.User.Username}}
     password: {{.User.Password}}
     email: {{.User.Email}}
   config:
+    actions:
+      ENABLED: true
     database:
       DB_TYPE: postgres
     session:

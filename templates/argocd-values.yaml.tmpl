@@ -22,19 +22,6 @@ configs:
     server.insecure: true
   rbac:
     policy.csv: |
-      p, role:org-admin, applications, *, */*, allow
-      p, role:org-admin, clusters, get, *, allow
-      p, role:org-admin, repositories, get, *, allow
-      p, role:org-admin, repositories, create, *, allow
-      p, role:org-admin, repositories, update, *, allow
-      p, role:org-admin, repositories, delete, *, allow
-      p, role:org-admin, projects, get, *, allow
-      p, role:org-admin, projects, create, *, allow
-      p, role:org-admin, projects, update, *, allow
-      p, role:org-admin, projects, delete, *, allow
-      p, role:org-admin, logs, get, *, allow
-      p, role:org-admin, exec, create, */*, allow
-
       p, role:sneakercloud-admin, applications, create, sneakercloud/*, allow
       p, role:sneakercloud-admin, applications, delete, sneakercloud/*, allow
       p, role:sneakercloud-admin, applications, get, sneakercloud/*, allow
@@ -45,11 +32,12 @@ configs:
       p, role:sneakercloud-admin, exec, create, sneakercloud/*, allow
       p, role:sneakercloud-admin, projects, get, sneakercloud, allow
 
-      g, roflex, role:org-admin
+      g, roflex, role:admin
       g, sneakerbot, role:sneakercloud-admin
       g, sneakercloud, role:sneakercloud-admin
   secret:
     argocdServerAdminPassword: '$2a$10$lBWi2EEzRDfetMWDzYP2KOKpgQ.QmpbrgVVBWalwr1u6n0h2LZD1q'
+    githubSecret: i am atomic
 
 server:
   ingress:
