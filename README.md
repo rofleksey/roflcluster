@@ -15,9 +15,9 @@
 # После запуска скрипта
 
 * Создать в Github/Gitea репозиторий `%cluster_name%_config`
-  * Настроить вебхуки для арго (секрет - `.user.secret` в конфиге)
+  * Настроить вебхуки для арго (https://argocd.%domain%/api/webhook, секрет - `.user.secret` в конфиге)
 * (Private) Создать в Gitea репозиторий `%cluster_name%_charts`
-  * Настроить вебхуки для арго (секрет - `.user.secret` в конфиге)
+  * Настроить вебхуки для арго (https://argocd.%domain%/api/webhook, секрет - `.user.secret` в конфиге)
 * (Private) Создать все необходимые репозитории в Gitea
   * Настроить зеркалирование в Github
 * (Private) Развернуть Gitea Act Agent на другой ноде
@@ -25,5 +25,6 @@
   * Выполнить после запуска `docker compose up` - `usermod -aG docker $USER && chmod 775 data && chown :docker data`
   * Подключить его к Gitea
 * Создать проект в ArgoCD
-  * Добавить репозитории, созданные выше
+  * Добавить репозитории, созданные выше (они будут failed, если пустые, это норма)
+  * Добавить App of Apps из `main.yaml`
 * Начать добавлять приложения =)
