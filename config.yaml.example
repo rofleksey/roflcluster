@@ -1,8 +1,12 @@
+cluster:
+  usePrivateRepo: true
 user:
   name: John Smith
-  username: shadow
+  username: shadow # not admin !
   password: pass
   email: cid_kagenou@shadowgarden.jp
+  bcrypt: $2a$10$sbVRa4hNqvrHMKsHm3gCheEIhzvPHiGuhK5vBplJj6tWTLIGnLLhK #htpasswd -nbBC 10 "" $PASSWORD | tr -d ':\n' | sed 's/$2y/$2a/'
+  secret: test
 mainNode:
   name: alpha-node
   ip: 1.2.3.4

@@ -13,23 +13,31 @@ type SSHConfig struct {
 }
 
 type NodeConfig struct {
-	Name   string    `yaml:"name"`
-	Ip     string    `yaml:"ip"`
-	Domain string    `yaml:"domain"`
-	Ssh    SSHConfig `yaml:"ssh"`
+	Name      string    `yaml:"name"`
+	Ip        string    `yaml:"ip"`
+	Domain    string    `yaml:"domain"`
+	UseDocker bool      `yaml:"useDocker"`
+	Ssh       SSHConfig `yaml:"ssh"`
+}
+
+type ClusterConfig struct {
+	UsePrivateRepo bool `yaml:"usePrivateRepo"`
 }
 
 type UserConfig struct {
 	Name     string `yaml:"name"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
+	Bcrypt   string `yaml:"bcrypt"`
+	Secret   string `yaml:"secret"`
 	Email    string `yaml:"email"`
 }
 
 type Config struct {
-	User       UserConfig   `yaml:"user"`
-	MainNode   NodeConfig   `yaml:"mainNode"`
-	AgentNodes []NodeConfig `yaml:"agentNodes"`
+	User       UserConfig    `yaml:"user"`
+	Cluster    ClusterConfig `yaml:"cluster"`
+	MainNode   NodeConfig    `yaml:"mainNode"`
+	AgentNodes []NodeConfig  `yaml:"agentNodes"`
 }
 
 func ReadConfig() (*Config, error) {

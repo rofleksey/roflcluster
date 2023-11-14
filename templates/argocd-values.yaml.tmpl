@@ -11,37 +11,18 @@ configs:
     application.instanceLabelKey: argocd.argoproj.io/instance
     server.rbac.log.enforce.enable: false
     exec.enabled: true
-    admin.enabled: false
+    admin.enabled: true
     timeout.reconciliation: 180s
     timeout.hard.reconciliation: 0s
-
-    accounts.roflex: apiKey, login
-    accounts.sneakerbot: apiKey, login
-    accounts.sneakercloud: apiKey, login
   params:
     server.insecure: true
-  rbac:
-    policy.csv: |
-      p, role:sneakercloud-admin, applications, create, sneakercloud/*, allow
-      p, role:sneakercloud-admin, applications, delete, sneakercloud/*, allow
-      p, role:sneakercloud-admin, applications, get, sneakercloud/*, allow
-      p, role:sneakercloud-admin, applications, override, sneakercloud/*, allow
-      p, role:sneakercloud-admin, applications, sync, sneakercloud/*, allow
-      p, role:sneakercloud-admin, applications, update, sneakercloud/*, allow
-      p, role:sneakercloud-admin, logs, get, sneakercloud/*, allow
-      p, role:sneakercloud-admin, exec, create, sneakercloud/*, allow
-      p, role:sneakercloud-admin, projects, get, sneakercloud, allow
-
-      g, roflex, role:admin
-      g, sneakerbot, role:sneakercloud-admin
-      g, sneakercloud, role:sneakercloud-admin
   secret:
-    argocdServerAdminPassword: '$2a$10$lBWi2EEzRDfetMWDzYP2KOKpgQ.QmpbrgVVBWalwr1u6n0h2LZD1q'
-    githubSecret: i am atomic
+    argocdServerAdminPassword: {{ .User.Bcrypt }}
+    githubSecret: {{ .User.Secret }}
 
 server:
   ingress:
     enabled: true
     ingressClassName: traefik
     hosts:
-      - argocd.rofleksey.ru
+      - argocd.{{.Node.Domain}}

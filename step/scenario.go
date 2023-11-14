@@ -1,14 +1,8 @@
 package step
 
 import (
-	"bytes"
-	"fmt"
-	"github.com/Masterminds/sprig/v3"
 	"github.com/melbahja/goph"
-	"gopkg.in/yaml.v2"
-	"os"
 	"sneakerdocs/config"
-	"text/template"
 )
 
 type ScenarioStep interface {
@@ -16,132 +10,97 @@ type ScenarioStep interface {
 	String() string
 }
 
-type ScenarioTemp struct {
-	Steps []yaml.MapSlice `yaml:"steps"`
-}
-
-type Header struct {
-	Type string `yaml:"type"`
-}
-
 type Scenario struct {
 	Steps []ScenarioStep `yaml:"steps"`
 }
 
-func unmarshalScenarioStep(stepType string, stepBytes []byte) (ScenarioStep, error) {
-	if stepType == "installK3s" {
-		return &InstallK3SStep{}, nil
+func CreateScenario(cfg *config.Config) *Scenario {
+	steps := []ScenarioStep{
+		// install k3s (if not already)
+		&InstallK3SStep{},
+
+		// download k3s access files
+		&DownloadK3SConfigStep{},
+
+		// install TLS secret
+		&TLSSecretStep{},
+
+		// install main ingress
+		&ApplyTemplateStep{
+			File: "templates/main-ingress.yaml.tmpl",
+		},
+
+		// install echo server
+		&ApplyHelmStep{
+			RepoUrl:        "https://ealenn.github.io/charts",
+			RepoName:       "ealenn",
+			ReleaseName:    "echoserver",
+			Chart:          "ealenn/echo-server",
+			Namespace:      "echoserver",
+			ValuesTemplate: "templates/echo-server-values.yaml.tmpl",
+		},
+
+		// wait for echo server availability
+		&HealthCheckStep{
+			Url: "https://echo." + cfg.MainNode.Domain,
+		},
+
+		// install k8s dashboard
+		&ApplyHelmStep{
+			RepoUrl:        "https://kubernetes.github.io/dashboard/",
+			RepoName:       "kubernetes-dashboard",
+			ReleaseName:    "kubernetes-dashboard",
+			Chart:          "kubernetes-dashboard/kubernetes-dashboard",
+			Namespace:      "kubernetes-dashboard",
+			ValuesTemplate: "templates/dashboard-values.yaml.tmpl",
+		},
+
+		// create k8s dashboard service account
+		&RunKubectlStep{
+			Cmd:       "create serviceaccount k8s-dashboard-admin",
+			Namespace: "kubernetes-dashboard",
+		},
+
+		// create k8s dashboard role binding
+		&ApplyTemplateStep{
+			File: "templates/dashboard-admin-role-binding.yaml.tmpl",
+		},
+
+		// create 10years access token for k8s dashboard
+		&RunKubectlStep{
+			Cmd:       "create token k8s-dashboard-admin --duration 315360000s",
+			Namespace: "kubernetes-dashboard",
+			SaveFile:  "dashboard-token",
+		},
 	}
 
-	if stepType == "k3sConfig" {
-		return &DownloadK3SConfigStep{}, nil
+	if cfg.Cluster.UsePrivateRepo {
+		steps = append(steps,
+			// install gitea
+			&ApplyHelmStep{
+				RepoUrl:        "https://dl.gitea.io/charts/",
+				RepoName:       "gitea-charts",
+				ReleaseName:    "gitea",
+				Chart:          "gitea-charts/gitea",
+				Namespace:      "gitea",
+				ValuesTemplate: "templates/gitea-values.yaml.tmpl",
+			},
+		)
 	}
 
-	if stepType == "tlsSecret" {
-		return &TLSSecretStep{}, nil
+	steps = append(steps,
+		// install argocd
+		&ApplyHelmStep{
+			RepoUrl:        "https://argoproj.github.io/argo-helm",
+			RepoName:       "argo",
+			ReleaseName:    "argocd",
+			Chart:          "argo/argo-cd",
+			Namespace:      "argocd",
+			ValuesTemplate: "templates/argocd-values.yaml.tmpl",
+		},
+	)
+
+	return &Scenario{
+		Steps: steps,
 	}
-
-	if stepType == "applyTemplate" {
-		var result ApplyTemplateStep
-
-		err := yaml.Unmarshal(stepBytes, &result)
-		if err != nil {
-			return nil, fmt.Errorf("failed to unmarshal step: %w", err)
-		}
-
-		return &result, nil
-	}
-
-	if stepType == "applyHelm" {
-		var result ApplyHelmStep
-
-		err := yaml.Unmarshal(stepBytes, &result)
-		if err != nil {
-			return nil, fmt.Errorf("failed to unmarshal step: %w", err)
-		}
-
-		return &result, nil
-	}
-
-	if stepType == "healthCheck" {
-		var result HealthCheckStep
-
-		err := yaml.Unmarshal(stepBytes, &result)
-		if err != nil {
-			return nil, fmt.Errorf("failed to unmarshal step: %w", err)
-		}
-
-		return &result, nil
-	}
-
-	if stepType == "runKubectl" {
-		var result RunKubectlStep
-
-		err := yaml.Unmarshal(stepBytes, &result)
-		if err != nil {
-			return nil, fmt.Errorf("failed to unmarshal step: %w", err)
-		}
-
-		return &result, nil
-	}
-
-	return nil, fmt.Errorf("invalid step type: %s", stepType)
-}
-
-func ReadScenario(cfg *config.Config) (*Scenario, error) {
-	scenarioBytes, err := os.ReadFile("scenario.yaml")
-	if err != nil {
-		return nil, fmt.Errorf("failed to read scenario file: %w", err)
-	}
-
-	tmpl, err := template.New("scenario").Funcs(sprig.FuncMap()).Parse(string(scenarioBytes))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create scenario template: %w", err)
-	}
-
-	var scenarioBuffer bytes.Buffer
-
-	data := TemplateData{
-		Node: cfg.MainNode,
-		User: cfg.User,
-	}
-
-	err = tmpl.Execute(&scenarioBuffer, &data)
-	if err != nil {
-		return nil, fmt.Errorf("failed to render scenario template: %w", err)
-	}
-
-	scenarioBytes = scenarioBuffer.Bytes()
-
-	tempResult := ScenarioTemp{}
-
-	err = yaml.Unmarshal(scenarioBytes, &tempResult)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal scenario file: %w", err)
-	}
-
-	var result Scenario
-
-	for _, tempStep := range tempResult.Steps {
-		var header Header
-
-		stepBytes, err := yaml.Marshal(tempStep)
-		if err != nil {
-			return nil, fmt.Errorf("failed to unmarshal step type: %w", err)
-		}
-
-		err = yaml.Unmarshal(stepBytes, &header)
-		if err != nil {
-			return nil, fmt.Errorf("failed to unmarshal step type: %w", err)
-		}
-
-		step, err := unmarshalScenarioStep(header.Type, stepBytes)
-		if err != nil {
-			return nil, fmt.Errorf("failed to unmarshal step: %w", err)
-		}
-
-		result.Steps = append(result.Steps, step)
-	}
-
-	return &result, nil
 }

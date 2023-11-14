@@ -6,7 +6,6 @@ import (
 	"sneakerdocs/config"
 	"sneakerdocs/step"
 	"sneakerdocs/util"
-	"time"
 )
 
 func main() {
@@ -18,10 +17,7 @@ func main() {
 		log.Fatalf("failed to read config: %s", err.Error())
 	}
 
-	scenario, err := step.ReadScenario(rootCfg)
-	if err != nil {
-		log.Fatalf("failed to read scenario: %s", err.Error())
-	}
+	scenario := step.CreateScenario(rootCfg)
 
 	if *destroyClusterFlag {
 		err = util.DestroyExistingCluster(rootCfg)
@@ -31,7 +27,7 @@ func main() {
 
 		log.Println("Cluster has been destroyed")
 
-		time.Sleep(time.Second)
+		return
 	}
 
 	err = util.InitMainNode(rootCfg, scenario)
