@@ -21,6 +21,8 @@
 * (Private) Создать все необходимые репозитории в Gitea
   * Настроить зеркалирование в Github
 * (Private) Развернуть Gitea Act Agent на другой ноде
+  * https://github.com/vegardit/docker-gitea-act-runner (Docker Compose + DooD) 
+  * Выполнить после запуска `docker compose up` - `usermod -aG docker $USER && chmod 775 data && chown :docker data`
   * Подключить его к Gitea
 * Создать проект в ArgoCD
   * Добавить репозитории, созданные выше
