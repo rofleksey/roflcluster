@@ -1,9 +1,7 @@
 .idea/
-config.yaml
-scenario.yaml
 node_modules/
 temp/
-k3s.yaml
+*.yaml
 certs/
 dashboard-token
 main-node-token
