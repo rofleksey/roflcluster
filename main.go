@@ -10,6 +10,7 @@ import (
 
 func main() {
 	destroyClusterFlag := flag.Bool("destroy", false, "destroy cluster")
+	onlySSL := flag.Bool("ssl-only", false, "only update ssl")
 	flag.Parse()
 
 	rootCfg, err := config.ReadConfig()
@@ -17,7 +18,7 @@ func main() {
 		log.Fatalf("failed to read config: %s", err.Error())
 	}
 
-	scenario := step.CreateScenario(rootCfg)
+	scenario := step.CreateScenario(rootCfg, *onlySSL)
 
 	if *destroyClusterFlag {
 		err = util.DestroyExistingCluster(rootCfg)

@@ -14,7 +14,15 @@ type Scenario struct {
 	Steps []ScenarioStep `yaml:"steps"`
 }
 
-func CreateScenario(cfg *config.Config) *Scenario {
+func CreateScenario(cfg *config.Config, onlySSL bool) *Scenario {
+	if onlySSL {
+		return &Scenario{
+			Steps: []ScenarioStep{
+				&TLSSecretStep{},
+			},
+		}
+	}
+
 	steps := []ScenarioStep{
 		// install k3s (if not already)
 		&InstallK3SStep{},
