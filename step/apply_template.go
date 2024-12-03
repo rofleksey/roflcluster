@@ -2,7 +2,7 @@ package step
 
 import (
 	"github.com/melbahja/goph"
-	"sneakerdocs/config"
+	"roflcluster/config"
 )
 
 type ApplyTemplateStep struct {

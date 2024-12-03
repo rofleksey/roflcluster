@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/melbahja/goph"
 	"path/filepath"
-	"sneakerdocs/config"
+	"roflcluster/config"
 	"strings"
 )
 

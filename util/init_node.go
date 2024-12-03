@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sneakerdocs/config"
-	"sneakerdocs/step"
+	"roflcluster/config"
+	"roflcluster/step"
 	"strings"
 )
 

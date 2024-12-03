@@ -3,7 +3,7 @@ package util
 import (
 	"fmt"
 	"log"
-	"sneakerdocs/config"
+	"roflcluster/config"
 	"strings"
 )
 

@@ -6,7 +6,7 @@ import (
 	"github.com/melbahja/goph"
 	"os"
 	"path/filepath"
-	"sneakerdocs/config"
+	"roflcluster/config"
 	"strings"
 	"text/template"
 )

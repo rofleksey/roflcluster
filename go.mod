@@ -1,4 +1,4 @@
-module sneakerdocs
+module roflcluster
 
 go 1.21.3
 

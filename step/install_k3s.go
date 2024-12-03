@@ -6,7 +6,7 @@ import (
 	"github.com/Masterminds/sprig/v3"
 	"github.com/melbahja/goph"
 	"log"
-	"sneakerdocs/config"
+	"roflcluster/config"
 	"text/template"
 )
 

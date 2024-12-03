@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/melbahja/goph"
 	"golang.org/x/crypto/ssh"
-	"sneakerdocs/config"
+	"roflcluster/config"
 )
 
 func OpenSSH(nodeConfig config.NodeConfig) (*goph.Client, error) {

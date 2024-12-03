@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/melbahja/goph"
 	"os"
-	"sneakerdocs/config"
+	"roflcluster/config"
 )
 
 type TLSSecretStep struct {

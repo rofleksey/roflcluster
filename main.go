@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"log"
-	"sneakerdocs/config"
-	"sneakerdocs/step"
-	"sneakerdocs/util"
+	"roflcluster/config"
+	"roflcluster/step"
+	"roflcluster/util"
 )
 
 func main() {

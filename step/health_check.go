@@ -6,7 +6,7 @@ import (
 	"github.com/melbahja/goph"
 	"log"
 	"net/http"
-	"sneakerdocs/config"
+	"roflcluster/config"
 	"time"
 )
 
